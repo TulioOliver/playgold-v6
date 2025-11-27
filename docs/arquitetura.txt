@@ -1,0 +1,25 @@
+ARQUITETURA PLAYGOLD-V6
+
+BACKEND:
+- Node.js + Express
+- MongoDB (Mongoose)
+- Rotas REST
+- Auth com JWT
+- Estrutura MVC
+- Arquivo .env para conexões
+
+FRONTEND:
+- React + Vite
+- Componentização total
+- Páginas independentes
+- Layout global
+- Aurora Gold integrada
+- React Router
+- CSS modular
+
+ESTRUTURA:
+playgold-v6/
+   backend/
+   frontend/
+   docs/
+

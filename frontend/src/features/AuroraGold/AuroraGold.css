@@ -1,0 +1,18 @@
+.aurora-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
+.aurora-button {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: gold;
+  box-shadow: 0 0 20px gold;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+

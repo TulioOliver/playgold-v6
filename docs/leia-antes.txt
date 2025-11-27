@@ -1,0 +1,35 @@
+Bem-vindo ao PlayGold-v6!
+
+Este projeto contém:
+
+- Backend completo (Node + Express + MongoDB)
+- Frontend completo (React + Vite)
+- Design exclusivo Black & Gold
+- Botão Aurora Gold
+- Arquitetura moderna e organizada
+
+Este arquivo serve como introdução para desenvolvedores,
+IAs continuadoras ou qualquer pessoa envolvida no projeto.
+
+Leia os outros arquivos desta pasta para informações detalhadas.
+
+
+===========================================
+Arquivo: /docs/leia-antes.txt
+===========================================
+
+Bem-vindo ao PlayGold-v6!
+
+Este projeto contém:
+
+- Backend completo (Node + Express + MongoDB)
+- Frontend completo (React + Vite)
+- Design exclusivo Black & Gold
+- Botão Aurora Gold
+- Arquitetura moderna e organizada
+
+Este arquivo serve como introdução para desenvolvedores,
+IAs continuadoras ou qualquer pessoa envolvida no projeto.
+
+Leia os outros arquivos desta pasta para informações detalhadas.
+

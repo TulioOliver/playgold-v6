@@ -1,0 +1,8 @@
+COMO CONTINUAR O DESENVOLVIMENTO DO PLAYGOLD-V6
+
+1. Criar todos os arquivos do frontend conforme este documento.
+2. Criar as pastas backend, frontend e docs exatamente como descrito.
+3. Integrar o frontend com o backend (rotas de login e registro).
+4. Criar funções reais de wallet (saldo, depósito, saque).
+5. Criar sistema de jogos quando solicitado pelo usuário.
+6. Evitar alterar qualquer estrutura sem necessidade.

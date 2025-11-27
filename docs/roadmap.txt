@@ -1,0 +1,19 @@
+ROADMAP OFICIAL PLAYGOLD-V6
+
+CONCLUÍDO:
+✓ Estrutura completa das pastas
+✓ Backend completo funcional
+✓ Frontend completo (páginas, layout, componentes)
+✓ Aurora Gold criada
+✓ Documentação principal criada
+✓ Guia final definindo regras
+
+PRÓXIMOS PASSOS:
+1. Criar autenticação real entre front ↔ back
+2. Dashboard com saldo dinâmico
+3. Sistema de depósito e saque
+4. Criar sistema de jogos real
+5. Adicionar integração PIX automático
+6. Criar área do afiliado
+7. Deploy final (Hostinger / VPS)
+
