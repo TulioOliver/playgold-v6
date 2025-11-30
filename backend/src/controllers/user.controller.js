@@ -1,3 +1,4 @@
+// /backend/src/controllers/user.controller.js
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -23,7 +24,17 @@ export const register = async (req, res) => {
       expiresIn: "30d",
     });
 
-    res.json({ token, user });
+    // Não enviar senha
+    const safeUser = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      balance: user.balance,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    res.json({ token, user: safeUser });
   } catch (err) {
     res.status(500).json({ msg: "Erro interno", error: err.message });
   }
@@ -44,9 +55,51 @@ export const login = async (req, res) => {
       expiresIn: "30d",
     });
 
-    res.json({ token, user });
+    const safeUser = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      balance: user.balance,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    res.json({ token, user: safeUser });
   } catch (err) {
     res.status(500).json({ msg: "Erro interno", error: err.message });
+  }
+};
+
+// === ME (dados do usuário logado) ===
+export const me = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: "Usuário não encontrado" });
+
+    const safeUser = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      balance: user.balance,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    res.json({ user: safeUser });
+  } catch (err) {
+    res.status(500).json({ msg: "Erro ao carregar usuário", error: err.message });
+  }
+};
+
+// === SALDO ===
+export const getBalance = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: "Usuário não encontrado" });
+
+    res.json({ balance: user.balance });
+  } catch (err) {
+    res.status(500).json({ msg: "Erro ao carregar saldo", error: err.message });
   }
 };
 
@@ -63,7 +116,6 @@ export const deposit = async (req, res) => {
     user.balance += amount;
     await user.save();
 
-    // Registrar histórico
     await History.create({
       userId: user._id,
       type: "deposit",
@@ -93,7 +145,6 @@ export const withdraw = async (req, res) => {
     user.balance -= amount;
     await user.save();
 
-    // Registrar histórico
     await History.create({
       userId: user._id,
       type: "withdraw",
@@ -116,6 +167,8 @@ export const getHistory = async (req, res) => {
 
     res.json({ history });
   } catch (err) {
-    res.status(500).json({ msg: "Erro ao carregar histórico", error: err.message });
+    res
+      .status(500)
+      .json({ msg: "Erro ao carregar histórico", error: err.message });
   }
 };

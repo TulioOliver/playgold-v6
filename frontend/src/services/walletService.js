@@ -1,6 +1,7 @@
+// /frontend/src/services/walletService.js
 import { getToken } from "./authService";
 
-const API_URL = "https://api.playgold.bet/api/users";
+const API_URL = "http://localhost:5000/api/users";
 
 export async function getBalance() {
   const token = getToken();
@@ -14,8 +15,7 @@ export async function getBalance() {
 
   const data = await response.json();
 
-  if (!response.ok)
-    throw new Error(data.msg || "Erro ao obter saldo");
+  if (!response.ok) throw new Error(data.msg || "Erro ao obter saldo");
 
   return data.balance;
 }
@@ -35,8 +35,7 @@ export async function deposit(amount) {
 
   const data = await response.json();
 
-  if (!response.ok)
-    throw new Error(data.msg || "Erro ao depositar");
+  if (!response.ok) throw new Error(data.msg || "Erro ao depositar");
 
   return data.balance;
 }
@@ -56,8 +55,7 @@ export async function withdraw(amount) {
 
   const data = await response.json();
 
-  if (!response.ok)
-    throw new Error(data.msg || "Erro ao sacar");
+  if (!response.ok) throw new Error(data.msg || "Erro ao sacar");
 
   return data.balance;
 }

@@ -1,6 +1,7 @@
+// /frontend/src/services/userService.js
 import { getToken } from "./authService";
 
-const API_URL = "https://api.playgold.bet/api/users";
+const API_URL = "http://localhost:5000/api/users";
 
 export async function fetchUser() {
   const token = getToken();
@@ -14,10 +15,9 @@ export async function fetchUser() {
 
   const data = await response.json();
 
-  if (!response.ok)
-    throw new Error(data.msg || "Erro ao carregar usuário");
+  if (!response.ok) throw new Error(data.msg || "Erro ao carregar usuário");
 
-  return data;
+  return data; // { user }
 }
 
 export async function fetchBalance() {
@@ -32,8 +32,7 @@ export async function fetchBalance() {
 
   const data = await response.json();
 
-  if (!response.ok)
-    throw new Error(data.msg || "Erro ao carregar saldo");
+  if (!response.ok) throw new Error(data.msg || "Erro ao carregar saldo");
 
   return data.balance;
 }
@@ -53,8 +52,7 @@ export async function updateBalance(amount) {
 
   const data = await response.json();
 
-  if (!response.ok)
-    throw new Error(data.msg || "Erro ao atualizar saldo");
+  if (!response.ok) throw new Error(data.msg || "Erro ao atualizar saldo");
 
   return data.balance;
 }

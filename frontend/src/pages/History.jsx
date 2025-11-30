@@ -1,5 +1,8 @@
+// /frontend/src/pages/History.jsx
 import { useEffect, useState } from "react";
 import { getToken } from "../services/authService";
+
+const API_URL = "http://localhost:5000/api/users";
 
 export default function History() {
   const [history, setHistory] = useState([]);
@@ -15,12 +18,9 @@ export default function History() {
           return;
         }
 
-        const response = await fetch(
-          "https://api.playgold.bet/api/users/history",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await fetch(`${API_URL}/history`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const data = await response.json();
 
@@ -57,7 +57,9 @@ export default function History() {
       <h1 className="text-4xl font-bold text-yellow-400 mb-6">Histórico</h1>
 
       <div className="bg-zinc-900 border border-yellow-700 rounded-xl p-6 shadow-[0_0_20px_gold]">
-        <h2 className="text-2xl font-bold text-yellow-300 mb-4">Suas transações</h2>
+        <h2 className="text-2xl font-bold text-yellow-300 mb-4">
+          Suas transações
+        </h2>
 
         {history.length === 0 ? (
           <p className="text-gray-400">Nenhuma transação encontrada.</p>

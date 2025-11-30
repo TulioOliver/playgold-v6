@@ -3,9 +3,8 @@ import "./AuroraGold.css";
 export default function AuroraGold() {
   return (
     <div className="aurora-container">
-      <button className="aurora-button">AG</button>
+      <div className="aurora-layer-1"></div>
+      <div className="aurora-layer-2"></div>
     </div>
   );
 }
-
-
