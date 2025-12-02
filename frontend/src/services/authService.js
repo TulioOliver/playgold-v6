@@ -1,4 +1,5 @@
-const API_URL = "https://api.playgold.bet/api/users";
+const API_URL = "http://localhost:5000/api/users";
+
 
 export function saveToken(token) {
   localStorage.setItem("playgold_token", token);

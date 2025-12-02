@@ -1,5 +1,7 @@
+// /frontend/src/components/Header.jsx
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getToken, logout as doLogout } from "../services/authService";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -7,13 +9,12 @@ export default function Header() {
   const [logged, setLogged] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getToken(); 
     setLogged(!!token);
   }, []);
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    doLogout();
     setLogged(false);
     navigate("/login");
   };
@@ -21,7 +22,7 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur-xl border-b border-yellow-500/20">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        
+
         <Link to="/" className="text-2xl font-bold text-yellow-400 tracking-wide">
           PLAY<span className="text-white">GOLD</span>
         </Link>

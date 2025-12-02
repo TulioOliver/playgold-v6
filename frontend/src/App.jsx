@@ -1,4 +1,4 @@
-// src/App.jsx
+// /frontend/src/App.jsx
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 
@@ -9,6 +9,8 @@ import Dashboard from "./pages/Dashboard";
 import Wallet from "./pages/Wallet";
 import History from "./pages/History";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+
 export default function App() {
   return (
     <Routes>
@@ -16,9 +18,33 @@ export default function App() {
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="wallet" element={<Wallet />} />
-        <Route path="history" element={<History />} />
+
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="wallet"
+          element={
+            <ProtectedRoute>
+              <Wallet />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
       </Route>
     </Routes>
   );

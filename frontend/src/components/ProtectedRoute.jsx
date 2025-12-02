@@ -1,7 +1,8 @@
 import { Navigate } from "react-router-dom";
+import { getToken } from "../services/authService";
 
 export default function ProtectedRoute({ children }) {
-  const token = localStorage.getItem("token");
+  const token = getToken(); // pega playgold_token automaticamente
 
   if (!token) {
     return <Navigate to="/login" replace />;
