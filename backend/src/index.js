@@ -1,8 +1,11 @@
+// /backend/src/index.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+
 import userRoutes from "./routes/user.routes.js";
+import gamesRoutes from "./routes/games.js";
 
 dotenv.config();
 
@@ -17,29 +20,24 @@ app.use(
   })
 );
 
+// ROTAS
 app.use("/api/users", userRoutes);
+app.use("/api/games", gamesRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "API PlayGold V6 funcionando." });
 });
 
+// MONGO
 const MONGO_URI = process.env.MONGO_URI;
-
-if (!MONGO_URI) {
-  console.error("ERRO: MONGO_URI não está definido no .env");
-  process.exit(1);
-}
 
 mongoose
   .connect(MONGO_URI)
   .then(() => console.log("MongoDB conectado com sucesso."))
-  .catch((err) => {
-    console.error("Erro ao conectar no MongoDB:", err);
-    process.exit(1);
-  });
+  .catch(() => console.log("Erro ao conectar no MongoDB."));
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`Servidor rodando na porta ${PORT}`)
+);

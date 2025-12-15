@@ -1,16 +1,16 @@
 const API_URL = "http://localhost:5000/api/users";
 
-
+// SALVA TOKEN PADRÃO DO SISTEMA
 export function saveToken(token) {
-  localStorage.setItem("playgold_token", token);
+  localStorage.setItem("token", token);
 }
 
 export function getToken() {
-  return localStorage.getItem("playgold_token");
+  return localStorage.getItem("token");
 }
 
 export function logout() {
-  localStorage.removeItem("playgold_token");
+  localStorage.removeItem("token");
 }
 
 export async function loginUser(email, password) {
@@ -23,10 +23,13 @@ export async function loginUser(email, password) {
   const data = await response.json();
 
   if (!response.ok)
-    throw new Error(data.msg || "Erro ao fazer login");
+    throw new Error(data.message || "Erro ao fazer login");
 
+  // AQUI SALVA O TOKEN CORRETO
   saveToken(data.token);
-  return data.user;
+
+  // RETORNA TUDO (token + user)
+  return data;
 }
 
 export async function registerUser(name, email, password) {
@@ -39,8 +42,10 @@ export async function registerUser(name, email, password) {
   const data = await response.json();
 
   if (!response.ok)
-    throw new Error(data.msg || "Erro ao registrar");
+    throw new Error(data.message || "Erro ao registrar");
 
+  // SALVA O TOKEN AO REGISTRAR
   saveToken(data.token);
-  return data.user;
+
+  return data;
 }

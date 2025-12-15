@@ -1,174 +1,172 @@
-// /backend/src/controllers/user.controller.js
-import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import History from "../models/History.js";
+import User from "../models/User.js";
+import GameHistory from "../models/GameHistory.js";
 
-// === REGISTRO ===
-export const register = async (req, res) => {
+// =============================================================
+// REGISTER
+// =============================================================
+export async function register(req, res) {
   try {
     const { name, email, password } = req.body;
 
     const exists = await User.findOne({ email });
-    if (exists) return res.status(400).json({ msg: "Usuário já existe" });
+    if (exists) {
+      return res.status(400).json({ message: "E-mail já registrado." });
+    }
 
-    const hashed = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
+    const newUser = await User.create({
       name,
       email,
-      password: hashed,
+      password: hash,
+      balance: 0,
     });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "30d",
+    return res.json({
+      message: "Conta criada com sucesso!",
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+      },
     });
-
-    // Não enviar senha
-    const safeUser = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      balance: user.balance,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
-
-    res.json({ token, user: safeUser });
   } catch (err) {
-    res.status(500).json({ msg: "Erro interno", error: err.message });
+    return res.status(500).json({ message: "Erro ao registrar usuário." });
   }
-};
+}
 
-// === LOGIN ===
-export const login = async (req, res) => {
+// =============================================================
+// LOGIN
+// =============================================================
+export async function login(req, res) {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ msg: "Usuário não encontrado" });
+    if (!user)
+      return res.status(400).json({ message: "E-mail ou senha incorretos." });
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ msg: "Senha inválida" });
+    if (!match)
+      return res.status(400).json({ message: "E-mail ou senha incorretos." });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "30d",
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.json({
+      message: "Login realizado com sucesso",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        balance: user.balance,
+      },
     });
-
-    const safeUser = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      balance: user.balance,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
-
-    res.json({ token, user: safeUser });
   } catch (err) {
-    res.status(500).json({ msg: "Erro interno", error: err.message });
+    return res.status(500).json({ message: "Erro interno no login." });
   }
-};
+}
 
-// === ME (dados do usuário logado) ===
-export const me = async (req, res) => {
+// =============================================================
+// GET BALANCE  (FUNÇÃO QUE ESTAVA FALTANDO)
+// =============================================================
+export async function getBalance(req, res) {
   try {
     const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ msg: "Usuário não encontrado" });
 
-    const safeUser = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      balance: user.balance,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+    if (!user) {
+      return res.status(404).json({ message: "Usuário não encontrado." });
+    }
 
-    res.json({ user: safeUser });
+    return res.json({ balance: user.balance });
   } catch (err) {
-    res.status(500).json({ msg: "Erro ao carregar usuário", error: err.message });
+    return res.status(500).json({ message: "Erro ao buscar saldo." });
   }
-};
+}
 
-// === SALDO ===
-export const getBalance = async (req, res) => {
+// =============================================================
+// PROFILE
+// =============================================================
+export async function getUserProfile(req, res) {
   try {
-    const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ msg: "Usuário não encontrado" });
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
 
-    res.json({ balance: user.balance });
+    return res.json(user);
   } catch (err) {
-    res.status(500).json({ msg: "Erro ao carregar saldo", error: err.message });
+    return res.status(500).json({ message: "Erro ao buscar perfil." });
   }
-};
+}
 
-// === DEPÓSITO ===
-export const deposit = async (req, res) => {
+// =============================================================
+// HISTORY
+// =============================================================
+export async function getUserHistory(req, res) {
+  try {
+    const history = await GameHistory.find({ userId: req.user.id })
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    return res.json(history);
+  } catch (err) {
+    return res.status(500).json({ message: "Erro ao buscar histórico." });
+  }
+}
+
+// =============================================================
+// DEPOSIT
+// =============================================================
+export async function deposit(req, res) {
   try {
     const { amount } = req.body;
 
     if (!amount || amount <= 0)
-      return res.status(400).json({ msg: "Valor inválido" });
+      return res.status(400).json({ message: "Valor inválido." });
 
     const user = await User.findById(req.user.id);
-
     user.balance += amount;
     await user.save();
 
-    await History.create({
-      userId: user._id,
-      type: "deposit",
-      amount,
-      balanceAfter: user.balance,
+    return res.json({
+      message: "Depósito realizado com sucesso",
+      balance: user.balance,
     });
 
-    res.json({ balance: user.balance });
   } catch (err) {
-    res.status(500).json({ msg: "Erro interno", error: err.message });
+    return res.status(500).json({ message: "Erro ao depositar." });
   }
-};
+}
 
-// === SAQUE ===
-export const withdraw = async (req, res) => {
+// =============================================================
+// WITHDRAW
+// =============================================================
+export async function withdraw(req, res) {
   try {
     const { amount } = req.body;
 
     if (!amount || amount <= 0)
-      return res.status(400).json({ msg: "Valor inválido" });
+      return res.status(400).json({ message: "Valor inválido." });
 
     const user = await User.findById(req.user.id);
 
     if (user.balance < amount)
-      return res.status(400).json({ msg: "Saldo insuficiente" });
+      return res.status(400).json({ message: "Saldo insuficiente." });
 
     user.balance -= amount;
     await user.save();
 
-    await History.create({
-      userId: user._id,
-      type: "withdraw",
-      amount,
-      balanceAfter: user.balance,
+    return res.json({
+      message: "Saque realizado com sucesso",
+      balance: user.balance,
     });
 
-    res.json({ balance: user.balance });
   } catch (err) {
-    res.status(500).json({ msg: "Erro interno", error: err.message });
+    return res.status(500).json({ message: "Erro ao sacar." });
   }
-};
-
-// === LISTAR HISTÓRICO ===
-export const getHistory = async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const history = await History.find({ userId }).sort({ createdAt: -1 });
-
-    res.json({ history });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ msg: "Erro ao carregar histórico", error: err.message });
-  }
-};
+}

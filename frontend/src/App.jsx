@@ -11,14 +11,23 @@ import History from "./pages/History";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// IMPORTAR AS PÁGINAS DO CASSINO
+import Casino from "./pages/Casino";
+import FortuneTiger from "./pages/FortuneTiger";
+
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<MainLayout />}>
+        
+        {/* Página inicial */}
         <Route index element={<Home />} />
+
+        {/* Acesso público */}
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
 
+        {/* Dashboard protegida */}
         <Route
           path="dashboard"
           element={
@@ -28,6 +37,7 @@ export default function App() {
           }
         />
 
+        {/* Carteira protegida */}
         <Route
           path="wallet"
           element={
@@ -37,6 +47,7 @@ export default function App() {
           }
         />
 
+        {/* Histórico protegido */}
         <Route
           path="history"
           element={
@@ -45,6 +56,31 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* ================================
+            ROTAS DO CASSINO (NOVAS)
+           ================================ */}
+
+        {/* Hub de jogos — protegido */}
+        <Route
+          path="casino"
+          element={
+            <ProtectedRoute>
+              <Casino />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fortune Tiger — protegido */}
+        <Route
+          path="fortune-tiger"
+          element={
+            <ProtectedRoute>
+              <FortuneTiger />
+            </ProtectedRoute>
+          }
+        />
+
       </Route>
     </Routes>
   );
