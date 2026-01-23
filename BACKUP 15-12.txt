@@ -1,0 +1,307 @@
+Antes de qualquer resposta:
+- Leia o TXT MASTER do PlayGold V6
+- Salve as regras na memória
+- Respeite o padrão JSON-based
+- NÃO recrie jogos em JS
+- NÃO peça edição manual de linhas
+- Sempre entregue arquivos completos e caminhos
+
+Use o script de classificação de modelo (INSTANT / AUTO / THINKING / PRO).
+
+
+PLAYGOLD V6 — MASTER FINAL STATUS / BACKUP OFICIAL
+=================================================
+
+ESTE ARQUIVO É A FONTE DA VERDADE DO PROJETO.
+QUALQUER IA QUE CONTINUAR ESTE PROJETO DEVE:
+1) LER ESTE TXT INTEIRO
+2) SALVAR AS REGRAS NA MEMÓRIA
+3) SEGUIR O PADRÃO AQUI DEFINIDO
+4) NÃO REINVENTAR NADA
+
+=================================================
+
+OBJETIVO DO PROJETO
+-------------------
+Criar um cassino online proprietário (PlayGold) com:
+- Backend próprio (Node.js + Express + MongoDB)
+- Frontend próprio (React + Vite)
+- Controle de banca inteligente
+- Jogos baseados em engine REAL (JSON-based)
+- Estrutura escalável, profissional e vendável
+
+=================================================
+
+PRINCÍPIOS INEGOCIÁVEIS
+----------------------
+- NÃO usar jogos fake ou simulados
+- NÃO reprogramar lógica de jogos em JavaScript
+- Jogos são definidos por arquivos .json
+- A engine apenas INTERPRETA JSON
+- Controle de banca decide QUANDO, nunca COMO
+- Usuário NÃO é programador
+- NÃO pedir edição de linhas isoladas
+- SEMPRE entregar arquivos completos
+- SEMPRE informar o caminho do arquivo
+- Respostas diretas, poucos passos
+- Tempo é prioridade absoluta
+- Backups em TXT são obrigatórios
+
+=================================================
+
+GIT / GITHUB — STATUS
+--------------------
+✔ Repositório conectado ao GitHub
+✔ Branch principal: main
+✔ Push realizado com sucesso
+✔ .gitignore criado corretamente
+✔ node_modules removidos do versionamento
+✔ Repositório limpo e profissional
+
+.gitignore inclui:
+- node_modules/
+- frontend/node_modules/
+- backend/node_modules/
+- .vite/
+- dist/
+- .env
+- logs e arquivos temporários
+
+=================================================
+
+BACKEND — STATUS REAL
+--------------------
+✔ Servidor sobe corretamente
+✔ MongoDB conectado
+✔ Autenticação JWT funcionando
+✔ Middleware de autenticação criado
+✔ Rotas organizadas
+✔ Histórico de jogos implementado
+
+Arquivos principais:
+- backend/src/index.js
+- backend/src/routes/index.js
+- backend/src/routes/user.routes.js
+- backend/src/routes/games.js
+- backend/src/controllers/user.controller.js
+- backend/src/models/User.js
+- backend/src/models/GameHistory.js
+- backend/src/middleware/authMiddleware.js
+
+=================================================
+
+CONTROLE DE BANCA — MASTER (ALINHAMENTO 04/12)
+---------------------------------------------
+✔ Controle de Banca MASTER criado
+✔ Configuração granular
+
+Conceitos definidos em 04/12:
+- dead / mini / win / big / ultra
+- Meta diária NÃO pode liberar tudo de uma vez
+- Ganhos devem ser DISTRIBUÍDOS entre jogadores
+- Evitar 1 jogador “explodir” a banca
+- BIG e ULTRA com liberação gradual
+- Cooldown por jogador vencedor
+- Proteção ativa da banca
+
+Características:
+- modoOperacao: auto / manual / híbrido
+- porcentagens configuráveis
+- controle de BIG e ULTRA
+- cooldown por jogador
+- distribuição de vitórias
+- meta diária
+- liberação gradual de ganhos
+- limites por hora e por dia
+
+Arquivo-chave:
+- backend/src/engine/controleDeBanca.js
+
+OBSERVAÇÃO:
+O controle de banca:
+- NÃO cria resultado
+- NÃO altera probabilidade
+- NÃO mexe em RTP
+- Apenas define o TIMING da rodada
+
+=================================================
+
+ENGINE HÍBRIDA
+--------------
+✔ Engine híbrida criada
+✔ Decide o tipo da rodada
+✔ Atua antes da engine do jogo
+
+Arquivo:
+- backend/src/engine/engineHibridaTiger.js
+
+Regra:
+- Este padrão DEVE ser usado para TODOS os jogos
+
+=================================================
+
+PADRÃO DE JOGOS — REGRA CRÍTICA
+------------------------------
+ATENÇÃO: OS JOGOS DO PLAYGOLD SÃO JSON-BASED.
+
+- Toda lógica do jogo está em arquivos .json
+- Probabilidades, símbolos, linhas e bônus vêm do JSON
+- NÃO recriar jogo em JS
+- NÃO hardcode
+- NÃO lógica paralela
+
+Papel da engine PlayGold:
+✔ Ler JSON
+✔ Executar spin conforme JSON
+✔ Aplicar controle de banca SOMENTE no timing
+
+PROIBIDO:
+❌ Reescrever jogo
+❌ Simular RTP
+❌ Misturar lógica JS com JSON
+
+=================================================
+
+FORTUNE TIGER — STATUS REAL
+--------------------------
+✔ Jogo REAL identificado
+✔ Engine original preservada
+✔ Baseado em JSON
+✔ Decisão: manter fidelidade total
+
+O que JÁ existe:
+- Controle de banca master
+- Engine híbrida
+- Controllers e rotas
+- Estrutura backend pronta
+
+PONTO EXATO ONDE PARAMOS:
+-------------------------
+Criar o ADAPTER do Fortune Tiger REAL.
+
+Arquivo a ser criado:
+- backend/src/engine/tiger/engineTigerReal.js
+
+Responsabilidade:
+- Ler JSONs do Fortune Tiger
+- Executar spin real
+- Receber:
+  • aposta
+  • multiplicador
+  • tipo de rodada (da engine híbrida)
+- Retornar JSON oficial do jogo
+- NÃO alterar lógica interna
+
+=================================================
+
+PADRÃO PARA OUTROS JOGOS
+-----------------------
+O padrão do Fortune Tiger deve ser replicado para:
+- Fortune Ox
+- Fortune Rabbit
+- Fortune Dragon
+- Fortune Mouse
+- Demais jogos
+
+Sempre:
+1) JSON do jogo (intocado)
+2) Engine real do jogo
+3) Adapter engineXReal.js
+4) Engine híbrida decide tipo
+5) Controle de banca age antes
+6) Frontend apenas renderiza
+
+=================================================
+
+FRONTEND — STATUS
+-----------------
+✔ React + Vite funcionando
+✔ Login funcional
+✔ Estrutura de páginas criada
+✔ Serviços HTTP criados
+
+Arquivos relevantes:
+- frontend/src/App.jsx
+- frontend/src/pages/Login.jsx
+- frontend/src/pages/Casino.jsx
+- frontend/src/pages/FortuneTiger.jsx
+- frontend/src/services/authService.js
+- frontend/src/services/gameService.js
+- frontend/src/services/http.js
+
+README do GitHub:
+- Deve ser simples e neutro
+- Não conter detalhes técnicos
+- Este TXT é a documentação real
+
+=================================================
+
+MODO DE TRABALHO (OBRIGATÓRIO)
+-----------------------------
+- Usuário NÃO edita linhas isoladas
+- IA entrega arquivos completos
+- IA informa caminhos
+- Poucos passos por vez
+- IA conduz o fluxo técnico
+- Evitar retrabalho
+- Atualizar este TXT quando solicitado
+
+=================================================
+
+SCRIPT DE COMPORTAMENTO DA IA
+-----------------------------
+Antes de responder, classificar o pedido em:
+INSTANT / AUTO / THINKING / PRO
+
+Mostrar ALERTA apenas se:
+- nível for THINKING ou PRO
+- OU mudar em relação ao pedido anterior
+
+Formato:
+⚠️ ALERTA DE MODELO
+Modelo recomendado: <...>
+Motivo objetivo: <1 frase>
+
+Gatilhos de PRO:
+- deploy / produção / infra
+- auth / segurança / JWT
+- banco de dados / migração
+- pagamentos / saque
+- decisões irreversíveis
+
+Regra:
+- Se dúvida entre THINKING e PRO → PRO
+- Respostas diretas
+- Sem excesso de explicação
+
+=================================================
+
+INSTRUÇÃO PARA OUTRA IA
+----------------------
+AO CONTINUAR ESTE PROJETO:
+- Salvar estas regras na memória
+- NÃO alterar o padrão
+- NÃO reinventar arquitetura
+- Pergunta “onde paramos?” deve ser respondida corretamente
+
+Resposta correta para “onde paramos?”:
+“Paramos após organizar GitHub, backend e controle de banca.
+O próximo passo é criar o adapter engineTigerReal.js
+para integrar o Fortune Tiger REAL (JSON) à engine híbrida.”
+
+=================================================
+
+PRÓXIMOS PASSOS
+---------------
+1) Criar engineTigerReal.js
+2) Integrar na engine híbrida
+3) Testar POST /games/fortune-tiger/play
+4) Ajustar frontend
+5) Validar Tiger REAL rodando
+6) Replicar padrão para outros jogos
+7) Atualizar README.md quando o sistema estiver estável
+
+=================================================
+
+FIM DO BACKUP MASTER FINAL
+
