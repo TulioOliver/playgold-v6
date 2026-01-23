@@ -1,37 +1,54 @@
-import { useState } from "react";
-import gameService from "../services/gameService";
+import { useState } from 'react';
+import gameService from '../services/gameService';
 
 export default function FortuneTiger() {
   const [bet, setBet] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
-  async function play() {
+  async function handlePlay() {
     try {
-      const data = await gameService.playTiger(bet);
-      setResult(data);
+      setLoading(true);
+      setError(null);
+
+      const response = await gameService.playFortuneTiger({
+        bet,
+        multiplier: 1
+      });
+
+      setResult(response.data);
     } catch (err) {
-      console.log("ERRO AO JOGAR TIGER", err);
+      setError('Erro ao executar o Fortune Tiger');
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div style={{ padding: 30, color: "white" }}>
-      <h1>Fortune Tiger</h1>
+    <div style={{ padding: 20 }}>
+      <h1>🐯 Fortune Tiger</h1>
 
-      <div>
-        <button onClick={() => setBet(Math.max(1, bet - 1))}>-</button>
-        <span style={{ margin: "0 12px" }}>Aposta: {bet}</span>
-        <button onClick={() => setBet(bet + 1)}>+</button>
+      <div style={{ marginBottom: 20 }}>
+        <label>Aposta:</label>
+        <input
+          type="number"
+          value={bet}
+          min={1}
+          onChange={e => setBet(Number(e.target.value))}
+        />
+        <button onClick={handlePlay} disabled={loading}>
+          {loading ? 'Jogando...' : 'SPIN'}
+        </button>
       </div>
 
-      <button onClick={play} style={{ padding: 12, marginTop: 20 }}>
-        GIRAR
-      </button>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {result && (
-        <pre style={{ marginTop: 30, background: "#222", padding: 20 }}>
-          {JSON.stringify(result, null, 2)}
-        </pre>
+        <div>
+          <h3>Resultado</h3>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </div>
       )}
     </div>
   );

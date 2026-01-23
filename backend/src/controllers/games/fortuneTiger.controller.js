@@ -1,89 +1,75 @@
 import engineHibridaTiger from "../../engine/engineHibridaTiger.js";
-import User from "../../models/User.js";
 import GameHistory from "../../models/GameHistory.js";
 
-// ===========================================================
-// CONTROLLER OFICIAL DO FORTUNE TIGER REAL
-// ===========================================================
-
-export const playTiger = async (req, res) => {
+export async function playTiger(req, res) {
   try {
-    const userId = req.userId;
-    const { cs, ml } = req.body; // cs = aposta base | ml = multiplicador
+    const { cs, ml } = req.body;
 
-    if (!cs || !ml) {
-      return res.status(400).json({ error: "Aposta inválida." });
+    // valida aposta
+    if (!cs || Number(cs) <= 0) {
+      return res.status(400).json({ error: "Aposta inválida" });
     }
 
-    const user = await User.findById(userId);
-    if (!user) return res.status(400).json({ error: "Usuário não encontrado." });
+    const user = req.user;
 
-    const apostaFinal = cs * ml * 5; // regra do Tiger real
-
-    if (user.balance < apostaFinal) {
-      return res.status(400).json({ error: "Saldo insuficiente." });
+    if (!user || !user._id) {
+      return res.status(401).json({ error: "Usuário não autenticado" });
     }
 
-    // DESCONTAR APOSTA
-    user.balance -= apostaFinal;
-    await user.save();
+    // saldo ANTES (fallback seguro)
+    const balanceBefore = Number(user.balance ?? 0);
 
-    // GERAR O RESULTADO (Tiger Real + Banca PlayGold)
-    const resultado = await engineHibridaTiger(user, cs, ml);
+    // roda o jogo (ENGINE HÍBRIDA EXPORTA DEFAULT)
+    const result = await engineHibridaTiger(
+      user,
+      Number(cs),
+      Number(ml ?? 1)
+    );
 
-    const ganho = resultado.totalGain || 0;
+    // valores para histórico
+    const betAmount = Number(cs) * Number(ml ?? 1);
 
-    // PAGAR GANHO (se houver)
-    if (ganho > 0) {
-      user.balance += ganho;
-      await user.save();
-    }
+    // Fortune Tiger real retorna normalmente totalGain + tabela
+    const winAmount = Number(
+      result?.totalGain ??
+      result?.winAmount ??
+      result?.win ??
+      0
+    );
 
-    // SALVAR NO HISTÓRICO
+    const profitImpact = winAmount - betAmount;
+    const balanceAfter = balanceBefore + profitImpact;
+
+    // pattern é obrigatório no schema (Array). No Tiger real costuma vir como "tabela"
+    const pattern = Array.isArray(result?.tabela)
+      ? result.tabela
+      : Array.isArray(result?.pattern)
+        ? result.pattern
+        : [];
+
+    // salva histórico (campos conforme GameHistory.js)
     await GameHistory.create({
-      userId,
-      game: "fortune-tiger",
-      bet: apostaFinal,
-      win: ganho,
-      type: resultado.tipo,
-      result: JSON.stringify(resultado)
+      userId: user._id,
+      gameName: "fortune-tiger",
+      betAmount,
+      winAmount,
+      balanceBefore,
+      balanceAfter,
+      pattern,
+      profitImpact,
     });
 
-    return res.json({
-      status: "ok",
-      tipo: resultado.tipo,
-      aposta: apostaFinal,
-      ganho: ganho,
-      saldo: user.balance,
-      result: resultado
+    return res.status(200).json({
+      success: true,
+      data: result,
     });
 
   } catch (err) {
     console.error("Erro no playTiger:", err);
-    return res.status(500).json({ error: "Erro interno ao jogar Tiger." });
-  }
-};
-
-
-
-// ===========================================================
-// GET TIGER (CARREGAR ESTADO INICIAL DO JOGO)
-// ===========================================================
-
-export const getTiger = async (req, res) => {
-  try {
-    const userId = req.userId;
-
-    const user = await User.findById(userId);
-    if (!user) return res.status(400).json({ error: "Usuário não encontrado." });
-
-    return res.json({
-      status: "ok",
-      saldo: user.balance
+    return res.status(500).json({
+      error: "Erro interno ao jogar Tiger.",
     });
-
-  } catch (err) {
-    console.error("Erro no getTiger:", err);
-    return res.status(500).json({ error: "Erro interno ao carregar Tiger." });
   }
-};
+}
+
+export default { playTiger };

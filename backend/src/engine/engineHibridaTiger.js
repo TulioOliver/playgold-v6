@@ -1,120 +1,125 @@
 import controleDeBanca from "./controleDeBanca.js";
-import gerarSpinOriginal from "./tiger/fortunetiger.js"; 
-// esta função será a ponte para a engine real que você enviou
+import engineTigerReal from "./tiger/engineTigerReal.js";
 
-//-------------------------------------------
-// UTILITÁRIOS
-//-------------------------------------------
+// -------------------------------------------
+// util
+// -------------------------------------------
 function rand(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-function escolherTipoRodadaManual(p) {
-  const n = rand(0, 100);
+function escolherTipoRodadaManual(p = {}) {
+  const dead = Number(p.dead ?? 0);
+  const mini = Number(p.mini ?? 0);
+  const win = Number(p.win ?? 0);
+  const big = Number(p.big ?? 0);
+  const ultra = Number(p.ultra ?? 0);
 
-  if (n < p.dead) return "dead";
-  if (n < p.dead + p.mini) return "mini";
-  if (n < p.dead + p.mini + p.win) return "win";
-  if (n < p.dead + p.mini + p.win + p.big) return "big";
+  const total = dead + mini + win + big + ultra;
+
+  // se porcentagens não estão configuradas, cai em dead
+  if (!total || total <= 0) return "dead";
+
+  const n = rand(0, total);
+
+  if (n < dead) return "dead";
+  if (n < dead + mini) return "mini";
+  if (n < dead + mini + win) return "win";
+  if (n < dead + mini + win + big) return "big";
   return "ultra";
 }
 
-//-------------------------------------------
+async function rodarSpin(apostaBase, multiplicador, tipo) {
+  const spin = await engineTigerReal.executeSpin({
+    bet: apostaBase,
+    multiplier: multiplicador,
+    roundType: tipo
+  });
+
+  // padroniza retorno esperado pelo controller (resultado.tipo e resultado.totalGain etc)
+  return {
+    tipo,
+    ...spin
+  };
+}
+
+// -------------------------------------------
 // ENGINE HÍBRIDA (TIGER + BANCA PLAYGOLD)
-//-------------------------------------------
+// -------------------------------------------
 export default async function engineHibridaTiger(user, apostaBase, multiplicador) {
   const c = controleDeBanca;
 
-  //-------------------------------------------
-  // 1. MODO MANUAL
-  //-------------------------------------------
-  if (c.modoOperacao === "manual") {
-    const tipo = escolherTipoRodadaManual(c.porcentagens);
-    const resultadoOriginal = await gerarSpinOriginal(apostaBase, multiplicador, tipo);
+  const modo = c?.modoOperacao ?? "auto";
 
-    return {
-      tipo,
-      ...resultadoOriginal
-    };
+  // 1) MANUAL
+  if (modo === "manual") {
+    const tipo = escolherTipoRodadaManual(c?.porcentagens);
+    return await rodarSpin(apostaBase, multiplicador, tipo);
   }
 
-  //-------------------------------------------
-  // 2. MODO AUTOMÁTICO
-  //-------------------------------------------
-  if (c.modoOperacao === "auto") {
+  // 2) AUTO
+  if (modo === "auto") {
+    const operacao = c?.operacao ?? {};
+    const limites = c?.limites ?? {};
 
-    // Proteção: banca próxima da meta
-    if (c.usarMetaDiaria && c.operacao.totalPagoHoje >= c.metaDiaria) {
-      return await gerarSpinOriginal(apostaBase, multiplicador, "dead");
+    const usarMetaDiaria = Boolean(c?.usarMetaDiaria);
+    const metaDiaria = Number(c?.metaDiaria ?? 0);
+
+    const totalPagoHoje = Number(operacao.totalPagoHoje ?? 0);
+    const totalGanhoHoje = Number(operacao.totalGanhoHoje ?? 0);
+
+    // Proteção: perto/atingiu meta → segura
+    if (usarMetaDiaria && metaDiaria > 0 && totalPagoHoje >= metaDiaria) {
+      return await rodarSpin(apostaBase, multiplicador, "dead");
     }
 
-    // Proteção: bigs demais na hora
-    if (c.controleBig && c.operacao.ultimosBigs.length >= c.limites.maxBigPorHora) {
-      return await gerarSpinOriginal(apostaBase, multiplicador, "dead");
+    // Proteção: bigs demais
+    const ultimosBigs = Array.isArray(operacao.ultimosBigs) ? operacao.ultimosBigs : [];
+    if (c?.controleBig && ultimosBigs.length >= Number(limites.maxBigPorHora ?? 999999)) {
+      return await rodarSpin(apostaBase, multiplicador, "dead");
     }
 
     // Proteção: ultras demais
-    if (c.controleUltra && c.operacao.ultimosUltras.length >= c.limites.maxUltraPorHora) {
-      return await gerarSpinOriginal(apostaBase, multiplicador, "dead");
+    const ultimosUltras = Array.isArray(operacao.ultimosUltras) ? operacao.ultimosUltras : [];
+    if (c?.controleUltra && ultimosUltras.length >= Number(limites.maxUltraPorHora ?? 999999)) {
+      return await rodarSpin(apostaBase, multiplicador, "dead");
     }
 
-    // Jogador em cooldown (ganhou demais recentemente)
-    if (c.cooldown && c.operacao.cooldownJogadores[user._id]) {
-      return await gerarSpinOriginal(apostaBase, multiplicador, "dead");
+    // Proteção: cooldown por jogador
+    const cooldownJogadores = operacao?.cooldownJogadores ?? {};
+    if (c?.cooldown && user?._id && cooldownJogadores?.[String(user._id)]) {
+      return await rodarSpin(apostaBase, multiplicador, "dead");
     }
 
-    // LOGICA AUTOMÁTICA BASEADA NO DESEMPENHO DA BANCA
-    const lucroHoje = c.operacao.totalGanhoHoje - c.operacao.totalPagoHoje;
+    // lógica base
+    const lucroHoje = totalGanhoHoje - totalPagoHoje;
 
-    let tipo;
+    let tipo = "dead";
 
-    if (lucroHoje < 0) {
-      tipo = "dead"; // banca perdeu → segura
-    } else if (lucroHoje < c.metaDiaria * 0.5) {
-      tipo = "mini"; // banca indo bem → mini
-    } else if (lucroHoje < c.metaDiaria * 0.9) {
-      tipo = "win";  // banca saudável → win
+    if (metaDiaria > 0) {
+      if (lucroHoje < 0) tipo = "dead";
+      else if (lucroHoje < metaDiaria * 0.5) tipo = "mini";
+      else if (lucroHoje < metaDiaria * 0.9) tipo = "win";
+      else tipo = "dead";
     } else {
-      tipo = "dead"; // perto da meta → segura
+      // se não tem meta configurada, fica conservador
+      tipo = "mini";
     }
 
-    // Liberação gradual do BIG / ULTRA
-    if (c.liberarBigGradual && rand(0,100) < 1) tipo = "big";
-    if (c.liberarUltraGradual && rand(0,100) < 0.3) tipo = "ultra";
+    // liberação gradual
+    if (c?.liberarBigGradual && rand(0, 100) < 1) tipo = "big";
+    if (c?.liberarUltraGradual && rand(0, 100) < 0.3) tipo = "ultra";
 
-    const resultadoOriginal = await gerarSpinOriginal(apostaBase, multiplicador, tipo);
-
-    return {
-      tipo,
-      ...resultadoOriginal
-    };
+    return await rodarSpin(apostaBase, multiplicador, tipo);
   }
 
-  //-------------------------------------------
-  // 3. MODO HÍBRIDO
-  //-------------------------------------------
-  if (c.modoOperacao === "hibrido") {
-    // 50% automático + 50% manual
-    const usarAuto = Math.random() < 0.5;
-
-    let tipo = usarAuto
-      ? escolherTipoRodadaManual(c.porcentagens)
-      : "dead";
-
-    const resultadoOriginal = await gerarSpinOriginal(apostaBase, multiplicador, tipo);
-
-    return {
-      tipo,
-      ...resultadoOriginal
-    };
+  // 3) HÍBRIDO
+  if (modo === "hibrido") {
+    const usarManual = Math.random() < 0.5;
+    const tipo = usarManual ? escolherTipoRodadaManual(c?.porcentagens) : "dead";
+    return await rodarSpin(apostaBase, multiplicador, tipo);
   }
 
-  //-------------------------------------------
   // fallback
-  //-------------------------------------------
-  const resultadoOriginal = await gerarSpinOriginal(apostaBase, multiplicador, "dead");
-  return {
-    tipo: "dead",
-    ...resultadoOriginal
-  };
+  return await rodarSpin(apostaBase, multiplicador, "dead");
 }

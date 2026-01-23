@@ -1,18 +1,11 @@
-import { Router } from "express";
-import auth from "../middleware/auth.js";
+import express from "express";
+import authMiddleware from "../middleware/authMiddleware.js";
+import { playTiger } from "../controllers/games/fortuneTiger.controller.js";
 
-import {
-  playTiger,
-  getTiger
-} from "../controllers/games/fortuneTiger.controller.js";
 
-const router = Router();
+const router = express.Router();
 
-// ======================================================
-// ROTAS OFICIAIS DO FORTUNE TIGER REAL
-// ======================================================
-
-router.post("/fortune-tiger/play", auth, playTiger);
-router.post("/fortune-tiger/get", auth, getTiger);
+// Fortune Tiger REAL
+router.post("/fortune-tiger/play", authMiddleware, playTiger);
 
 export default router;
